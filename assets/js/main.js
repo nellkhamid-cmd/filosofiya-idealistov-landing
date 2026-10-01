@@ -133,8 +133,8 @@
     dim.className = 'hero__dim';
     dim.style.cssText = 'position:absolute;inset:0;background:#081616;opacity:0;pointer-events:none';
     $('.hero__media').appendChild(dim);
-    const out = { trigger: '.buy', start: 'top bottom', end: 'top top', scrub: true };
-    gsap.to('.hero__in', { yPercent: -22, opacity: 0, ease: 'none', scrollTrigger: { trigger: '.buy', start: 'top bottom', end: 'top 35%', scrub: true } });
+    const out = { trigger: '.quiz', start: 'top bottom', end: 'top top', scrub: true };
+    gsap.to('.hero__in', { yPercent: -18, opacity: 0, ease: 'none', scrollTrigger: { trigger: '.quiz', start: 'top bottom', end: 'top 35%', scrub: true } });
     gsap.to('.hero__media picture', { scale: 1.12, yPercent: 6, ease: 'none', scrollTrigger: out });
     gsap.to(dim, { opacity: 0.55, ease: 'none', scrollTrigger: out });
 
@@ -201,10 +201,24 @@
       gsap.fromTo('.photo-card--tall', { y: 36 }, { y: -18, ease: 'none', scrollTrigger: { trigger: '.infra__grid', start: 'top bottom', end: 'bottom top', scrub: true } });
     });
 
-    /* 5.9 Галерея: кадры въезжают справа со шторкой */
-    gsap.fromTo('.g-item', { x: 140, opacity: 0 }, {
-      x: 0, opacity: 1, duration: 1.3, ease: 'expo.out', stagger: 0.09,
-      scrollTrigger: { trigger: '.gallery__track', start: 'top 85%', once: true },
+    /* 5.9 Преимущества */
+    /* десктоп: карточки прилипают стопкой; уходящая уменьшается и темнеет, фото въезжающей отъезжает (как в «Город-Парке») */
+    mm.add(DESK, () => {
+      const cards = $$('.adv-tile');
+      cards.forEach((card, i) => {
+        card.style.setProperty('--i', i);
+        gsap.fromTo(card.querySelector('img'), { scale: 1.16 }, { scale: 1, ease: 'none', scrollTrigger: { trigger: card, start: 'top bottom', end: 'top 30%', scrub: true } });
+        const next = cards[i + 1];
+        if (!next) return;
+        gsap.to(card, {
+          scale: 0.93, '--dim': 0.3, ease: 'none',
+          scrollTrigger: { trigger: next, start: 'top bottom', end: () => 'top ' + (parseFloat(getComputedStyle(next).top) || 40) + 'px', scrub: true, invalidateOnRefresh: true },
+        });
+      });
+      return () => cards.forEach((card) => { card.style.removeProperty('--i'); });
+    });
+    mm.add('(max-width: 1023px)', () => {
+      gsap.from('.adv-tile', { x: 80, opacity: 0, duration: 1.2, ease: 'expo.out', stagger: 0.08, scrollTrigger: { trigger: '.adv__viewport', start: 'top 85%', once: true } });
     });
 
     /* 5.10 Застройщик: фон медленно сдвигается (параллакс) */
@@ -215,7 +229,7 @@
     gsap.from('.stars svg', { scale: 0, duration: 0.6, ease: 'back.out(3)', stagger: 0.03, scrollTrigger: { trigger: '.reviews__track', start: 'top 70%', once: true } });
 
     /* 5.12 Заявка: фото раскрывается снизу */
-    mm.add(DESK, () => gsap.fromTo('.lead__media img', { scale: 1.2 }, { scale: 1, ease: 'none', scrollTrigger: { trigger: '.lead__media', start: 'top bottom', end: 'bottom 40%', scrub: true } }));
+    mm.add(DESK, () => gsap.fromTo('.lead__bg img', { scale: 1.15 }, { scale: 1, ease: 'none', scrollTrigger: { trigger: '.lead', start: 'top bottom', end: 'bottom bottom', scrub: true } }));
 
     /* 5.13 Отделка: на десктопе экран прилипает, фото отъезжает, плашка White Box проявляется (pin + reveal) */
     mm.add(DESK, () => {
@@ -231,7 +245,7 @@
   }
 
   /* ---------------------------------------------------------------
-     6. Карусели: преимущества (pin + горизонталь на десктопе), галерея, отзывы
+     6. Карусели: преимущества (на телефоне), отзывы
      --------------------------------------------------------------- */
   function carousel(key, opts) {
     const track = $(`[data-track="${key}"]`);
@@ -294,63 +308,7 @@
   }
 
   function initCarousels() {
-    /* Преимущества */
-    let advPinned = null;
-    const advBar = $('[data-progress="adv"] i');
-    carousel('adv', {
-      scroller: '.adv__viewport', noDrag: true,
-      isPinned: () => !!advPinned,
-      onArrow: (dir) => {
-        if (!advPinned) return false;
-        const st = advPinned.scrollTrigger;
-        const track = $('.adv__track');
-        const cards = track.children;
-        const dist = st.end - st.start;
-        const stepPx = cards[1].offsetLeft - cards[0].offsetLeft;
-        const travel = track.scrollWidth - d.documentElement.clientWidth;
-        const p = Math.max(0, Math.min(1, st.progress + dir * (stepPx / travel)));
-        const y = st.start + dist * p + 1;
-        if (lenis) lenis.scrollTo(y, { duration: 1 }); else window.scrollTo({ top: y, behavior: 'smooth' });
-        return true;
-      },
-    });
-    if (MOTION) {
-      mm.add(DESK, () => {
-        const track = $('.adv__track');
-        const travel = () => track.scrollWidth - d.documentElement.clientWidth;
-        advPinned = gsap.to(track, {
-          x: () => -travel(), ease: 'none',
-          scrollTrigger: {
-            trigger: '.adv__pin', start: 'top top', end: () => '+=' + travel(), pin: true, scrub: 1, invalidateOnRefresh: true,
-            onUpdate: (self) => {
-              const vis = d.documentElement.clientWidth / track.scrollWidth;
-              advBar.style.setProperty('--p', (vis + self.progress * (1 - vis)).toFixed(3));
-              const arrows = $('[data-arrows="adv"]');
-              arrows.querySelector('[data-dir="-1"]').disabled = self.progress < 0.01;
-              arrows.querySelector('[data-dir="1"]').disabled = self.progress > 0.99;
-            },
-          },
-        });
-        /* карточки поднимаются при подходе к секции; иконки «оживают»: видимые — сразу,
-           остальные — когда карточка въезжает в кадр по горизонтали */
-        gsap.from('.adv-card', { y: 80, opacity: 0, duration: 1.1, ease: 'expo.out', stagger: 0.05, scrollTrigger: { trigger: '.adv', start: 'top 85%', once: true } });
-        const vw = d.documentElement.clientWidth;
-        const icoFrom = { scale: 0.4, rotate: -25, opacity: 0, duration: 0.9, ease: 'back.out(2.2)' };
-        $$('.adv-card').forEach((card, i) => {
-          const ico = card.querySelector('.adv-card__ico');
-          if (card.offsetLeft + card.offsetWidth * 0.5 < vw) {
-            gsap.from(ico, Object.assign({}, icoFrom, { delay: 0.35 + i * 0.08, scrollTrigger: { trigger: '.adv', start: 'top 85%', once: true } }));
-          } else {
-            gsap.from(ico, Object.assign({}, icoFrom, { scrollTrigger: { trigger: card, containerAnimation: advPinned, start: 'left 92%', toggleActions: 'play none none reverse' } }));
-          }
-        });
-        return () => { advPinned = null; };
-      });
-      mm.add('(max-width: 1023px)', () => {
-        gsap.from('.adv-card', { x: 80, opacity: 0, duration: 1.2, ease: 'expo.out', stagger: 0.08, scrollTrigger: { trigger: '.adv__viewport', start: 'top 85%', once: true } });
-      });
-    }
-    carousel('gal');
+    carousel('adv', { scroller: '.adv__viewport' });   /* на десктопе плитка, прокрутки нет — стрелки скрыты стилями */
     carousel('rev');
   }
 
@@ -524,69 +482,6 @@
   }
 
   /* ---------------------------------------------------------------
-     10. Лайтбокс галереи
-     --------------------------------------------------------------- */
-  function initLightbox() {
-    const lb = $('#lightbox');
-    const img = $('.lb__img', lb);
-    const count = $('.lb__count', lb);
-    const thumbs = $$('[data-lightbox] img');
-    const srcs = thumbs.map((t) => t.getAttribute('src').replace('-900.webp', '-1600.webp'));
-    let idx = 0, opener = null;
-    function show(i, dir) {
-      idx = (i + srcs.length) % srcs.length;
-      const apply = () => {
-        img.src = srcs[idx];
-        img.alt = thumbs[idx].alt;
-        count.textContent = `${idx + 1} / ${srcs.length}`;
-        img.classList.remove('is-out');
-      };
-      if (dir && !REDUCED) {
-        img.style.setProperty('--dir', dir);
-        img.classList.add('is-out');
-        setTimeout(apply, 220);
-      } else apply();
-    }
-    function open(i, from) {
-      opener = from;
-      show(i);
-      lb.inert = false;
-      lb.classList.add('is-open');
-      lockScroll(true);
-      $('.lb__close', lb).focus();
-      if (MOTION && from) {
-        const r = from.getBoundingClientRect();
-        gsap.fromTo(img, { scale: Math.min(0.9, r.width / window.innerWidth), opacity: 0 }, { scale: 1, opacity: 1, duration: 0.8, ease: 'expo.out' });
-      }
-    }
-    function close() {
-      lb.classList.remove('is-open');
-      lb.inert = true;
-      lockScroll(false);
-      if (opener) opener.focus();
-    }
-    $$('[data-lightbox]').forEach((b) => b.addEventListener('click', () => open(+b.dataset.lightbox, b)));
-    $('[data-lb-close]', lb).addEventListener('click', close);
-    $$('[data-lb]', lb).forEach((b) => b.addEventListener('click', () => show(idx + +b.dataset.lb, +b.dataset.lb)));
-    lb.addEventListener('click', (e) => { if (e.target.classList.contains('lb__stage')) close(); });
-    d.addEventListener('keydown', (e) => {
-      if (!lb.classList.contains('is-open')) return;
-      if (e.key === 'Escape') close();
-      if (e.key === 'ArrowRight') show(idx + 1, 1);
-      if (e.key === 'ArrowLeft') show(idx - 1, -1);
-    });
-    let sx = null;
-    const stage = $('.lb__stage', lb);
-    stage.addEventListener('pointerdown', (e) => { sx = e.clientX; });
-    stage.addEventListener('pointerup', (e) => {
-      if (sx === null) return;
-      const dx = e.clientX - sx;
-      sx = null;
-      if (Math.abs(dx) > 50) show(idx + (dx < 0 ? 1 : -1), dx < 0 ? 1 : -1);
-    });
-  }
-
-  /* ---------------------------------------------------------------
      11. Формы: маска телефона, проверка, кнопка-морф, тост, модалка
      --------------------------------------------------------------- */
   const toast = $('.toast');
@@ -688,15 +583,35 @@
     });
   }
 
-  /* Кнопки с data-quiz открывают квиз Марквиз (id — в FI_CONFIG.marquizId).
-     Своей всплывающей формы нет: пока квиз не подключён, кнопки ничего не открывают. */
+  /* ---------------------------------------------------------------
+     12. Квиз Марквиз — блок сразу после первого экрана.
+         iframe подгружается, когда блок подходит к экрану (или по нажатию любой кнопки-призыва).
+         Кнопки с data-quiz плавно ведут к квизу; если подключён скрипт Марквиза и задан
+         FI_CONFIG.marquizId — открывают его всплывающим окном.
+     --------------------------------------------------------------- */
+  const quizCard = $('.quiz__card');
+  const quizFrame = $('.quiz__frame');
+  function loadQuiz() {
+    if (!quizFrame || quizFrame.src) return;
+    quizFrame.addEventListener('load', () => quizCard.classList.add('is-loaded'), { once: true });
+    quizFrame.src = quizFrame.dataset.src;
+    setTimeout(() => { if (!quizCard.classList.contains('is-loaded')) quizCard.classList.add('is-slow'); }, 7000);
+  }
+  function initQuiz() {
+    if (!quizCard) return;
+    if ('IntersectionObserver' in window) {
+      const io = new IntersectionObserver(([en]) => { if (en.isIntersecting) { loadQuiz(); io.disconnect(); } }, { rootMargin: '600px 0px' });
+      io.observe(quizCard);
+    } else loadQuiz();
+  }
   d.addEventListener('click', (e) => {
     const b = e.target.closest('[data-quiz]');
     if (!b) return;
     e.preventDefault();
     if (html.classList.contains('open-menu')) toggleMenu(false);
-    if (CFG.marquizId && window.Marquiz && typeof window.Marquiz.showModal === 'function') window.Marquiz.showModal(CFG.marquizId);
-    else console.info('[Квиз] Марквиз ещё не подключён: задайте FI_CONFIG.marquizId и вставьте код Марквиза');
+    if (CFG.marquizId && window.Marquiz && typeof window.Marquiz.showModal === 'function') { window.Marquiz.showModal(CFG.marquizId); return; }
+    loadQuiz();
+    scrollTo('#quiz');
   });
   d.addEventListener('keydown', (e) => {
     if (e.key === 'Escape' && html.classList.contains('open-menu')) toggleMenu(false);
@@ -706,7 +621,7 @@
      СТАРТ: лёгкое сразу, анимации прокрутки — порциями после первой отрисовки
      --------------------------------------------------------------- */
   const idle = window.requestIdleCallback ? (fn) => requestIdleCallback(fn, { timeout: 600 }) : (fn) => setTimeout(fn, 60);
-  const queue = [initTabs, initForms, initReviews, initLightbox, initMap, initCarousels, initScrollMotion, () => {
+  const queue = [initQuiz, initTabs, initForms, initReviews, initMap, initCarousels, initScrollMotion, () => {
     if (!HAS_GSAP) return;
     ScrollTrigger.sort();
     /* общий пересчёт только если шрифты ещё грузятся (после них меняются высоты); остальное ScrollTrigger делает сам */
