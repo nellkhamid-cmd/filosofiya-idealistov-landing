@@ -19,7 +19,7 @@
   <link rel="preload" href="assets/fonts/Manrope-latin.woff2" as="font" type="font/woff2" crossorigin>
   <link rel="preload" as="image" type="image/avif" href="assets/img/hero-m-1000.avif" imagesrcset="assets/img/hero-m-640.avif 640w, assets/img/hero-m-1000.avif 1000w, assets/img/hero-m-1400.avif 1400w" imagesizes="100vw" media="(max-width: 1023px)">
   <link rel="preload" as="image" type="image/avif" href="assets/img/hero-1920.avif" imagesrcset="assets/img/hero-1280.avif 1280w, assets/img/hero-1920.avif 1920w, assets/img/hero-2560.avif 2560w" imagesizes="100vw" media="(min-width: 1024px)">
-  <link rel="stylesheet" href="assets/css/style.css?v=7">
+  <link rel="stylesheet" href="assets/css/style.css?v=8">
   <script>document.documentElement.classList.add('js');</script>
 </head>
 <body>
@@ -97,7 +97,7 @@
           <span class="hero__title-b">«Философия идеалистов <span class="nw">на&nbsp;Жуковского»&nbsp;—</span></span>
           <span class="hero__title-l">дом в кругу своих <span class="nw">на&nbsp;Уктусе</span></span>
         </h1>
-        <p class="hero__price"><span class="hero__price-l">Квартиры</span> <span class="hero__price-v">от&nbsp;4,5&nbsp;млн&nbsp;₽</span></p>
+        <p class="hero__price">от&nbsp;4,5&nbsp;млн&nbsp;₽</p>
         <p class="hero__lead"><b>Старт продаж.</b> Специальные условия на квартиры</p>
         <div class="hero__cta">
           <button class="btn btn--grad btn--lg" type="button" data-quiz data-goal="hero_pick">
@@ -108,7 +108,7 @@
       </div>
     </section>
 
-    <!-- ============ 2. ЧТО ВЫ ПОЛУЧИТЕ (перед квизом) ============ -->
+    <!-- ============ 2. ЧТО ВЫ ПОЛУЧИТЕ + КВИЗ МАРКВИЗ (одна подложка) ============ -->
     <section class="sec perks" id="perks">
       <div class="container">
         <div class="perks__panel">
@@ -134,26 +134,16 @@
               <p>Отправим подробную презентацию дома и&nbsp;актуальные планировки квартир.</p>
             </li>
           </ol>
+          <!-- Квиз Марквиз — на той же подложке, что и карточки; подгружается, когда блок подходит к экрану -->
+          <div class="quiz__card" id="quiz">
+            <iframe class="quiz__frame" title="Квиз: подбор квартиры" data-src="https://mrqz.me/6aba259bf4b390000f8007ae" allow="clipboard-write" referrerpolicy="strict-origin-when-cross-origin"></iframe>
+            <div class="quiz__ph"><svg viewBox="0 0 104.6 59.72" aria-hidden="true"><use href="#eight"/></svg><p>Квиз загружается. Если он не появился, <a href="https://mrqz.me/6aba259bf4b390000f8007ae" target="_blank" rel="noopener">откройте его в новом окне</a></p></div>
+          </div>
         </div>
       </div>
     </section>
 
-    <!-- ============ 3. КВИЗ МАРКВИЗ ============ -->
-    <section class="sec quiz" id="quiz">
-      <div class="container quiz__grid">
-        <div class="quiz__text">
-          <h2 class="h2" data-split><b>Подберём квартиру</b> под ваш сценарий жизни</h2>
-          <p class="quiz__lead" data-reveal>Ответьте на несколько вопросов: подскажем подходящие планировки и условия покупки</p>
-        </div>
-        <div class="quiz__card">
-          <!-- Квиз Марквиз: подгружается, когда блок подходит к экрану -->
-          <iframe class="quiz__frame" title="Квиз: подбор квартиры" data-src="https://mrqz.me/6aba259bf4b390000f8007ae" allow="clipboard-write" referrerpolicy="strict-origin-when-cross-origin"></iframe>
-          <div class="quiz__ph"><svg viewBox="0 0 104.6 59.72" aria-hidden="true"><use href="#eight"/></svg><p>Квиз загружается. Если он не появился, <a href="https://mrqz.me/6aba259bf4b390000f8007ae" target="_blank" rel="noopener">откройте его в новом окне</a></p></div>
-        </div>
-      </div>
-    </section>
-
-    <!-- ============ 4. СПОСОБЫ ПОКУПКИ ============ -->
+    <!-- ============ 3. СПОСОБЫ ПОКУПКИ ============ -->
     <section class="sec buy" id="buy">
       <div class="container">
         <h2 class="h2" data-split>Способы покупки</h2>
@@ -169,7 +159,7 @@
             <figure class="buy-card__media">
               <picture class="pc"><source type="image/avif" srcset="assets/img/mortgage-600.avif 600w, assets/img/mortgage-1000.avif 1000w" sizes="(min-width: 1024px) 34vw, 46vw"><img src="assets/img/mortgage-600.webp" srcset="assets/img/mortgage-600.webp 600w, assets/img/mortgage-1000.webp 1000w" sizes="(min-width: 1024px) 34vw, 46vw" width="600" height="931" alt="Башня дома со знаком «Философии идеалистов» на фасаде" loading="lazy" decoding="async"></picture>
             </figure>
-            <button class="buy-card__cta" type="button" data-quiz data-goal="buy_mortgage">
+            <button class="buy-card__cta" type="button" data-lead-popup data-goal="buy_mortgage">
               <span>Получить предложение</span><i class="buy-card__arr"><svg><use href="#i-arrow"/></svg></i>
             </button>
           </article>
@@ -197,7 +187,7 @@
           </article>
         </div>
         <!-- на телефоне вместо кнопок в карточках — одна кнопка в конце блока -->
-        <button class="buy-card__cta buy__cta" type="button" data-quiz data-goal="buy_offer">
+        <button class="buy-card__cta buy__cta" type="button" data-lead-popup data-goal="buy_offer">
           <span>Получить предложение</span><i class="buy-card__arr"><svg><use href="#i-arrow"/></svg></i>
         </button>
       </div>
@@ -285,11 +275,6 @@
             <p class="time__lbl">ТЦ «Глобус»</p>
           </li>
         </ul>
-        <p class="loc__route">
-          <a class="link-arrow" href="https://yandex.ru/maps/?rtext=~56.781740%2C60.650475&amp;rtt=auto" target="_blank" rel="noopener" data-goal="route">
-            <svg><use href="#i-route"/></svg>Построить маршрут
-          </a>
-        </p>
       </div>
 
       <!-- Карта района: подложка из OpenStreetMap (brand-map / build_map.py), область 1,5 × 1,3 км вокруг дома и объектов -->
@@ -614,7 +599,7 @@
       <picture class="pc"><source type="image/avif" srcset="assets/img/form-700.avif 700w, assets/img/form-1100.avif 1100w, assets/img/form-1600.avif 1600w" sizes="(min-width: 1024px) 100vw, 100vw"><img src="assets/img/form-1600.webp" srcset="assets/img/form-700.webp 700w, assets/img/form-1100.webp 1100w, assets/img/form-1600.webp 1600w" sizes="100vw" width="1600" height="2000" alt="Дом «Философия идеалистов на Жуковского» с высоты: башня и стилобат с озеленённым двором" loading="lazy" decoding="async"></picture>
     </div>
     <div class="container lead__grid">
-      <div class="lead__panel" data-reveal>
+      <div class="lead__panel" id="lead-form" data-reveal>
         <h2 class="h2 h2--light"><b>Подберем варианты</b><br> и проконсультируем по&nbsp;финансовым условиям</h2>
         <form class="form" data-form="final" novalidate>
           <div class="field">
@@ -643,7 +628,7 @@
           <label class="check">
             <input type="checkbox" name="agree" required>
             <span class="check__box" aria-hidden="true"><svg><use href="#i-check"/></svg></span>
-            <span class="check__txt">Я соглашаюсь <a href="#" data-policy>на обработку персональных данных</a> и даю согласие на <a href="#" data-policy>получение сервисных</a>, <a href="#" data-policy>рекламных сообщений</a> в целях рассмотрения обращения согласно <a href="#" data-policy>Политике конфиденциальности</a>.</span>
+            <span class="check__txt">Я соглашаюсь <a href="https://xn--b1achqbwcbxq.xn----8sbggfpabdxg3aai9ajrvf5t.xn--p1ai/policy" target="_blank" rel="noopener" data-policy>на обработку персональных данных</a> и даю согласие на <a href="https://xn--b1achqbwcbxq.xn----8sbggfpabdxg3aai9ajrvf5t.xn--p1ai/policy" target="_blank" rel="noopener" data-policy>получение сервисных</a>, <a href="https://xn--b1achqbwcbxq.xn----8sbggfpabdxg3aai9ajrvf5t.xn--p1ai/policy" target="_blank" rel="noopener" data-policy>рекламных сообщений</a> в целях рассмотрения обращения согласно <a href="https://xn--b1achqbwcbxq.xn----8sbggfpabdxg3aai9ajrvf5t.xn--p1ai/policy" target="_blank" rel="noopener" data-policy>Политике конфиденциальности</a>.</span>
           </label>
           <p class="field__err field__err--agree" role="alert"></p>
           <button class="morph" type="submit" data-state="idle" data-goal="lead_final">
@@ -669,13 +654,13 @@
         <p class="ftr__cap">Офис продаж:</p>
         <p>г. Екатеринбург, ул. Красноармейская, д. 41,</p>
       </div>
-      <button class="btn btn--outline" type="button" data-quiz data-goal="footer_call">
+      <a class="btn btn--outline" href="#lead-form" data-scroll data-goal="footer_call">
         <span class="btn__txt">Заказать звонок</span>
-      </button>
+      </a>
     </div>
     <div class="ftr__mid">
       <p>© 2026 ООО «Философия идеалистов»</p>
-      <a href="#" data-policy>Политика конфиденциальности</a>
+      <a href="https://xn--b1achqbwcbxq.xn----8sbggfpabdxg3aai9ajrvf5t.xn--p1ai/policy" target="_blank" rel="noopener" data-policy>Политика конфиденциальности</a>
       <p>Дизайн и реклама — <a class="ftr__soda" href="#" rel="noopener">СОДА</a></p>
     </div>
     <!-- Юридическая информация временно скрыта по просьбе заказчика: <template> не отображается. Чтобы вернуть, убрать обёртку <template>. -->
@@ -706,6 +691,52 @@
   </div>
 </dialog>
 
+<!-- Форма заявки во всплывающем окне: кнопки «Получить предложение» в «Способах покупки» (data-lead-popup) -->
+<dialog class="qm qm--form" id="lead-modal" aria-labelledby="lm-title">
+  <div class="qm__backdrop" data-qm-close></div>
+  <div class="qm__card qm__card--form">
+    <button class="qm__close qm__close--float" type="button" data-qm-close aria-label="Закрыть"><svg><use href="#i-x"/></svg></button>
+    <h2 class="h2 h2--light" id="lm-title"><b>Подберем варианты</b><br> и&nbsp;проконсультируем по&nbsp;финансовым условиям</h2>
+    <form class="form" data-form="buy" data-topic="Способы покупки: получить предложение" novalidate>
+      <div class="field">
+        <input class="field__input" id="b-name" name="name" type="text" autocomplete="name" placeholder=" " required>
+        <label class="field__label" for="b-name">Ваше имя</label>
+        <p class="field__err" role="alert"></p>
+      </div>
+      <div class="field field--phone">
+        <span class="field__flag" aria-hidden="true"></span>
+        <input class="field__input" id="b-phone" name="phone" type="tel" autocomplete="tel" inputmode="tel" placeholder="+7 (999) 876-54-32" required>
+        <label class="field__label" for="b-phone">Телефон</label>
+        <p class="field__err" role="alert"></p>
+      </div>
+      <div class="field field--select">
+        <label class="field__cap" for="b-rooms">Какая комнатность квартиры вас интересует?</label>
+        <select class="field__select" id="b-rooms" name="rooms">
+          <option value="" selected>Выберите из списка</option>
+          <option>Студия</option>
+          <option>1-комнатная</option>
+          <option>2-комнатная</option>
+          <option>3-комнатная</option>
+          <option>Двухуровневая</option>
+        </select>
+        <svg class="field__caret" aria-hidden="true"><use href="#i-caret"/></svg>
+      </div>
+      <label class="check">
+        <input type="checkbox" name="agree" required>
+        <span class="check__box" aria-hidden="true"><svg><use href="#i-check"/></svg></span>
+        <span class="check__txt">Я соглашаюсь <a href="https://xn--b1achqbwcbxq.xn----8sbggfpabdxg3aai9ajrvf5t.xn--p1ai/policy" target="_blank" rel="noopener" data-policy>на обработку персональных данных</a> и даю согласие на <a href="https://xn--b1achqbwcbxq.xn----8sbggfpabdxg3aai9ajrvf5t.xn--p1ai/policy" target="_blank" rel="noopener" data-policy>получение сервисных</a>, <a href="https://xn--b1achqbwcbxq.xn----8sbggfpabdxg3aai9ajrvf5t.xn--p1ai/policy" target="_blank" rel="noopener" data-policy>рекламных сообщений</a> в целях рассмотрения обращения согласно <a href="https://xn--b1achqbwcbxq.xn----8sbggfpabdxg3aai9ajrvf5t.xn--p1ai/policy" target="_blank" rel="noopener" data-policy>Политике конфиденциальности</a>.</span>
+      </label>
+      <p class="field__err field__err--agree" role="alert"></p>
+      <button class="morph" type="submit" data-state="idle" data-goal="lead_buy">
+        <span class="morph__bg"></span>
+        <span class="morph__label">Получить консультацию <svg class="btn__ico"><use href="#i-arrow"/></svg></span>
+        <span class="morph__spinner" aria-hidden="true"></span>
+        <svg class="morph__check" viewBox="0 0 22 22" aria-hidden="true"><path d="M4.5 11.5l4.2 4.2L17.5 7" pathLength="1"/></svg>
+      </button>
+    </form>
+  </div>
+</dialog>
+
 <!-- Тост после отправки -->
 <div class="toast" role="status" aria-live="polite">
   <span class="toast__icon" aria-hidden="true"><svg><use href="#i-check"/></svg></span>
@@ -720,6 +751,6 @@
 </script>
 <script src="assets/js/vendor/gsap.min.js" defer></script>
 <script src="assets/js/vendor/ScrollTrigger.min.js" defer></script>
-<script src="assets/js/main.js?v=7" defer></script>
+<script src="assets/js/main.js?v=8" defer></script>
 </body>
 </html>

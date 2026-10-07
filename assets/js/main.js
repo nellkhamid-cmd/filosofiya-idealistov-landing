@@ -57,11 +57,14 @@
     }).catch(() => {});
     loadScript('assets/js/vendor/SplitText.min.js').then(() => { if (window.SplitText) gsap.registerPlugin(SplitText); }).catch(() => {});
   }
+  /* к элементу прокручиваем с отступом под шапку: квиз и форма не заезжают под неё.
+     Позиция — по offsetTop, без учёта transform: блок может быть ещё в анимации появления */
+  function docTop(el) { let y = 0; for (let n = el; n; n = n.offsetParent) y += n.offsetTop; return y; }
   function scrollTo(target) {
     const el = typeof target === 'string' ? (target === '#top' ? 0 : $(target)) : target;
     if (el === null || el === undefined) return;
-    if (lenis) { lenis.scrollTo(el, { duration: 1.6 }); return; }
-    const y = typeof el === 'number' ? el : el.getBoundingClientRect().top + window.scrollY;
+    const y = typeof el === 'number' ? el : Math.max(0, docTop(el) - $('#hdr').offsetHeight - 16);
+    if (lenis) { lenis.scrollTo(y, { duration: 1.6 }); return; }
     window.scrollTo({ top: y, behavior: REDUCED ? 'auto' : 'smooth' });
   }
   function lockScroll(on) {
@@ -551,7 +554,8 @@
         btn.setAttribute('aria-busy', 'true');
         const data = Object.assign({
           form: form.dataset.form,
-          topic: 'Подберем варианты и проконсультируем по финансовым условиям',
+          topic: form.dataset.topic || 'Подберем варианты и проконсультируем по финансовым условиям',
+          button: form.dataset.source || '',   /* какая кнопка открыла поп-ап с формой */
           name: form.elements.name.value.trim(),
           phone: form.elements.phone.value,
           rooms: form.elements.rooms ? form.elements.rooms.value : '',
@@ -564,6 +568,8 @@
         btn.dataset.state = 'done';
         goal(btn.dataset.goal);
         showToast('Заявка отправлена');
+        const dlg = form.closest('dialog');
+        if (dlg) setTimeout(() => closeModal(dlg), 900);   /* поп-ап закрывается после галочки */
         setTimeout(() => {
           btn.dataset.state = 'idle';
           form.reset();
@@ -590,36 +596,49 @@
   }
   function loadQuiz() { loadFrame(quizFrame, quizCard); }
 
-  /* поп-ап: <dialog> (фокус внутри окна, фон недоступен), анимация открытия и закрытия — на CSS */
-  const qm = $('#quiz-modal');
-  const qmBody = qm && $('.qm__body', qm);
-  let qmClosing = false;
-  function openQuizModal() {
-    if (!qm || qm.open) return;
-    loadFrame($('.quiz__frame', qmBody), qmBody);
-    qmClosing = false;
-    qm.classList.remove('is-closing');
+  /* поп-апы — <dialog> (фокус внутри окна, фон недоступен), анимация открытия и закрытия — на CSS:
+     квиз (кнопки в планировках и отзывах) и форма заявки (кнопки в «Способах покупки») */
+  function openModal(dlg) {
+    if (!dlg || dlg.open) return;
+    dlg.classList.remove('is-closing');
     lockScroll(true);
-    if (typeof qm.showModal === 'function') qm.showModal(); else qm.setAttribute('open', '');
+    if (typeof dlg.showModal === 'function') dlg.showModal(); else dlg.setAttribute('open', '');
   }
-  function closeQuizModal() {
-    if (!qm || !qm.open || qmClosing) return;
-    qmClosing = true;
-    qm.classList.add('is-closing');
+  function closeModal(dlg) {
+    if (!dlg || !dlg.open || dlg.classList.contains('is-closing')) return;
+    dlg.classList.add('is-closing');
+    const card = $('.qm__card', dlg);
+    let fired = false;
     const done = () => {
-      if (!qmClosing) return;
-      qmClosing = false;
-      qm.classList.remove('is-closing');
-      if (typeof qm.close === 'function') qm.close(); else qm.removeAttribute('open');
+      if (fired) return;
+      fired = true;
+      dlg.classList.remove('is-closing');
+      if (typeof dlg.close === 'function') dlg.close(); else dlg.removeAttribute('open');
       lockScroll(false);
     };
-    if (REDUCED) done();
-    else { $('.qm__card', qm).addEventListener('animationend', done, { once: true }); setTimeout(done, 450); }
+    if (REDUCED) { done(); return; }
+    card.addEventListener('animationend', function end(e) { if (e.target === card) { card.removeEventListener('animationend', end); done(); } });
+    setTimeout(done, 450);
   }
-  if (qm) {
-    qm.addEventListener('click', (e) => { if (e.target.closest('[data-qm-close]')) closeQuizModal(); });
-    qm.addEventListener('cancel', (e) => { e.preventDefault(); closeQuizModal(); });   /* Esc — тоже с анимацией */
+  $$('dialog.qm').forEach((dlg) => {
+    dlg.addEventListener('click', (e) => { if (e.target.closest('[data-qm-close]')) closeModal(dlg); });
+    dlg.addEventListener('cancel', (e) => { e.preventDefault(); closeModal(dlg); });   /* Esc — тоже с анимацией */
+  });
+  const qm = $('#quiz-modal');
+  function openQuizModal() {
+    if (!qm) return;
+    const body = $('.qm__body', qm);
+    loadFrame($('.quiz__frame', body), body);
+    openModal(qm);
   }
+  const leadModal = $('#lead-modal');
+  d.addEventListener('click', (e) => {
+    const b = e.target.closest('[data-lead-popup]');
+    if (!b || !leadModal) return;
+    e.preventDefault();
+    $('form', leadModal).dataset.source = b.dataset.goal || '';
+    openModal(leadModal);
+  });
   function initQuiz() {
     if (!quizCard) return;
     if ('IntersectionObserver' in window) {
