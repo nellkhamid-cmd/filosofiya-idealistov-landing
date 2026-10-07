@@ -70,7 +70,7 @@
   --spring: linear(0, 0.031, 0.109, 0.215, 0.333, 0.452, 0.566, 0.669, 0.758, 0.833, 0.894, 0.942, 0.978, 1.004, 1.021, 1.032, 1.037, 1.038, 1.037, 1.034, 1.03, 1.026, 1.021, 1.017, 1.013, 1.009, 1.006, 1.004, 1.002, 1.001, 1, 0.999, 0.999, 0.999, 0.999, 0.999, 1);
   --t-spring: 560ms;
   --shadow: 0 30px 70px -32px rgb(0 66 131 / .35);
-  --z-hdr: 50; --z-menu: 60; --z-toast: 90;
+  --z-hdr: 50; --z-modal: 80; --z-toast: 90;
 }
 @media (min-width: 480px) { :root { --gutter: 24px; } }
 @media (min-width: 768px) { :root { --gutter: 32px; --sec: 104px; --hdr-h: 72px; --cut: 150px; } }
@@ -79,10 +79,10 @@
 
 /* ---------- База ---------- */
 *, *::before, *::after { box-sizing: border-box; }
-html { -webkit-text-size-adjust: 100%; text-size-adjust: 100%; scroll-padding-top: var(--hdr-h); }
+html { -webkit-text-size-adjust: 100%; text-size-adjust: 100%; scroll-padding-top: var(--hdr-h); scrollbar-gutter: stable; }   /* место под полосу прокрутки сохраняется, когда открыт поп-ап квиза — страница не сдвигается */
 html.lenis, html.lenis body { height: auto; }
 .lenis.lenis-smooth { scroll-behavior: auto !important; }
-.lenis.lenis-stopped { overflow: clip; }
+.lenis.lenis-stopped { overflow: hidden; }
 body {
   margin: 0; background: var(--bg); color: var(--ink);
   font-family: "Manrope", sans-serif; font-size: var(--fs-body); line-height: 1.6; font-weight: 400;
@@ -170,11 +170,11 @@ b, strong { font-weight: 700; }
 .progress--light { background: rgb(255 255 255 / .25); }
 .progress--light i { background: #fff; }
 
-/* ---------- Шапка (без ссылок на разделы — только логотип, кнопка и меню) ---------- */
+/* ---------- Шапка (без ссылок на разделы и меню — только логотип и кнопка) ---------- */
 .hdr { position: fixed; inset: 0 0 auto; z-index: var(--z-hdr); color: #fff; pointer-events: none; transition: transform .6s var(--ease), color .4s var(--ease); }
 .hdr::before {
   content: ""; position: absolute; inset: 0;
-  background: rgb(255 255 255 / .97);   /* без backdrop-filter: размытие фона ломает отрисовку встроенного квиза Марквиз в Chrome */
+  background: #fff;   /* непрозрачная: иначе сквозь шапку просвечивает белый текст первого экрана; без backdrop-filter — размытие ломает отрисовку квиза Марквиз в Chrome */
   box-shadow: 0 1px 0 var(--line); opacity: 0; transform: translateY(-100%); transition: opacity .4s var(--ease), transform .6s var(--ease);
 }
 .hdr__in { position: relative; display: flex; align-items: center; gap: 12px; width: min(100% - 2 * var(--gutter), var(--maxw)); margin-inline: auto; height: var(--hdr-h); }
@@ -183,48 +183,24 @@ b, strong { font-weight: 700; }
 .hdr__mark { width: 66.2%; height: auto; margin-left: 16.8%; transform-origin: 0 0; transition: transform .6s var(--ease), color .4s; }
 .hdr__word { width: 100%; height: auto; margin-top: 7%; transform-origin: 0 0; transition: opacity .35s var(--ease), transform .6s var(--ease); }
 .hdr__cta { display: none; }
-.burger { position: relative; display: grid; place-items: center; width: 48px; height: 48px; margin-right: -6px; border-radius: 50%; color: inherit; }
-.burger span { position: absolute; left: 13px; right: 13px; height: 1.5px; border-radius: 2px; background: currentColor; transition: transform .5s var(--ease), top .5s var(--ease); }
-.burger span:nth-child(1) { top: 19px; }
-.burger span:nth-child(2) { top: 27px; }
-.open-menu .burger span:nth-child(1) { top: 23px; transform: rotate(45deg); }
-.open-menu .burger span:nth-child(2) { top: 23px; transform: rotate(-45deg); }
 .hdr.is-compact { color: var(--ink); }
 .hdr.is-compact::before { opacity: 1; transform: none; }
 .hdr.is-compact .hdr__logo { margin-top: 0; align-self: center; }
 .hdr.is-compact .hdr__mark { transform: translateX(-25.4%) scale(.62); color: var(--logo); }
 .hdr.is-compact .hdr__word { opacity: 0; transform: translateY(-10px); position: absolute; pointer-events: none; }
 .hdr.is-hidden { transform: translateY(-100%); }
-.open-menu .hdr { color: var(--ink); transform: none; }
-.open-menu .hdr .hdr__mark { color: var(--logo); }
-.open-menu .hdr .hdr__word { opacity: 0; }
 @media (min-width: 768px) {
   .hdr__logo { width: 128px; margin-top: 22px; }
   .hdr__cta { display: inline-flex; }
   .hdr.is-compact .hdr__mark { transform: translateX(-25.4%) scale(.54); }
 }
 
-/* ---------- Меню ---------- */
-.menu { position: fixed; inset: 0; z-index: var(--z-menu); background: var(--bg); color: var(--ink); padding: calc(var(--hdr-h) + 16px) 0 24px; transform: translate3d(0, 100%, 0); visibility: hidden; transition: transform .7s var(--ease), visibility 0s .7s; overflow-y: auto; overscroll-behavior: contain; }
-.menu::before { content: ""; position: absolute; right: -60px; bottom: -40px; width: 420px; height: 360px; background: url("../img/pattern.svg") 0 0 / 104.6px auto; opacity: .12; -webkit-mask-image: radial-gradient(closest-side, #000 30%, transparent); mask-image: radial-gradient(closest-side, #000 30%, transparent); pointer-events: none; }
-.open-menu .menu { transform: none; visibility: visible; transition: transform .7s var(--ease), visibility 0s; }
-.open-menu .hdr { z-index: calc(var(--z-menu) + 1); }
-.menu__in { position: relative; display: flex; flex-direction: column; min-height: 100%; gap: 32px; }
-.menu__list { display: grid; gap: 2px; }
-.menu__list a { display: block; padding: 6px 0; font-size: clamp(1.5rem, 1.1rem + 2.2vw, 2.8rem); font-weight: 600; line-height: 1.12; letter-spacing: -.03em; transition: color .3s, transform .5s var(--ease); }
-.menu__list a:hover { color: var(--blue); transform: translateX(8px); }
-.menu__list li { opacity: 0; transform: translateY(24px); transition: opacity .3s, transform .3s; }
-.open-menu .menu__list li { opacity: 1; transform: none; transition: opacity .6s var(--ease), transform .8s var(--ease); transition-delay: calc(.12s + var(--i, 0) * .035s); }
-.menu__foot { margin-top: auto; display: grid; gap: 20px; padding-top: 24px; border-top: 1px solid var(--line); }
-.menu__addr { color: var(--ink-2); font-size: var(--fs-small); }
-.menu__addr span { display: block; color: var(--ink); font-weight: 700; font-size: var(--fs-body); }
-@media (min-width: 768px) { .menu__foot { grid-template-columns: 1fr auto; align-items: center; } }
-
 /* ---------- 1. Первый экран ----------
    телефон и планшет: сверху рендер — башня целиком, снизу фирменная панель с текстом;
-   десктоп: рендер на весь экран, башня слева, текст справа на мягком фирменном затемнении */
+   экран прокручивается обычным образом, без «шторки» (иначе при уходе текст и плашка исчезают рывком);
+   десктоп: рендер на весь экран, башня слева, текст справа на фирменной плашке; экран «прилипает», следующий блок наезжает шторкой */
 .stage { position: relative; }
-.hero { position: sticky; top: 0; z-index: 0; min-height: 100vh; min-height: 100svh; display: flex; flex-direction: column; color: #fff; overflow: clip; background: var(--navy); }
+.hero { position: relative; z-index: 0; min-height: 100vh; min-height: 100svh; display: flex; flex-direction: column; color: #fff; overflow: clip; background: var(--navy); }
 .hero__media { position: relative; flex: 1 1 auto; min-height: 220px; overflow: hidden; }
 .hero__media picture { position: absolute; inset: 0; }
 .hero__media picture, .hero__img { width: 100%; height: 100%; }
@@ -272,15 +248,22 @@ b, strong { font-weight: 700; }
   .hero__cta .btn { min-height: 60px; }
 }
 @media (min-width: 1024px) {
-  .hero { display: block; }
-  .hero__media { position: absolute; inset: 0; min-height: 0; }
-  .hero__img { object-position: 22% 62%; }
+  /* ширина фирменной плашки = отступ контейнера + колонка текста + скос */
+  .hero { --panel-w: calc(max(var(--gutter), (100vw - var(--maxw)) / 2) + clamp(440px, 40vw, 680px) + var(--cut) * .55); position: sticky; top: 0; display: block; }
+  .hero__media { position: absolute; inset: 0; min-height: 0; container-type: size; }
+  /* рендер сдвинут влево: правый край башни (45,5% ширины кадра) стоит на отступ левее плашки,
+     на любом соотношении сторон окна башня видна целиком; кадр 1920×1161 → ширина = max(ширина окна, 1,654 × высота) */
+  .hero__img {
+    --img-w: max(100cqw, 165.4cqh);
+    object-position: 22% 62%;
+    object-position: clamp(calc(100cqw - var(--panel-w) + var(--cut) + 10px - var(--img-w)), calc(100cqw - var(--panel-w) - clamp(40px, 5vw, 96px) - var(--img-w) * .455), 0px) 62%;
+  }
   .hero__shade { background: linear-gradient(180deg, rgb(0 30 60 / .45) 0%, rgb(0 30 60 / 0) 22%); }
   /* фирменная плашка справа на всю высоту, скос 30° в левом верхнем углу (зеркально макетам брендбука);
      ширина = отступ контейнера + колонка текста + скос, башня на фото остаётся слева */
   .hero__panel {
     position: absolute; top: 0; bottom: 0; right: 0; left: auto; margin: 0;
-    width: calc(max(var(--gutter), (100vw - var(--maxw)) / 2) + clamp(440px, 40vw, 680px) + var(--cut) * .55);
+    width: var(--panel-w);
     clip-path: polygon(var(--cut) 0, 100% 0, 100% 100%, 0 100%, 0 calc(var(--cut) * .5774));
     align-items: center;
     animation: panel-in-r 1.2s var(--ease) both;
@@ -298,7 +281,7 @@ b, strong { font-weight: 700; }
 
 /* ---------- 2. Квиз Марквиз — заголовок и квиз по центру ---------- */
 .quiz { position: relative; z-index: 1; background: var(--bg-sky); overflow: hidden; }
-.quiz::before { content: ""; position: absolute; left: 0; right: 0; top: -40px; height: 40px; pointer-events: none; background: linear-gradient(0deg, rgb(0 30 60 / .25), rgb(0 30 60 / 0)); }
+@media (min-width: 1024px) { .quiz::before { content: ""; position: absolute; left: 0; right: 0; top: -40px; height: 40px; pointer-events: none; background: linear-gradient(0deg, rgb(0 30 60 / .25), rgb(0 30 60 / 0)); } }
 .quiz::after { content: ""; position: absolute; left: 50%; top: 0; width: min(1400px, 140vw); height: 70%; transform: translateX(-50%); pointer-events: none; background: url("../img/pattern.svg") 0 0 / 104.6px auto; opacity: .07; -webkit-mask-image: radial-gradient(50% 60% at 50% 0%, #000 20%, transparent); mask-image: radial-gradient(50% 60% at 50% 0%, #000 20%, transparent); }
 .quiz__grid { position: relative; z-index: 1; display: grid; gap: 24px; justify-items: center; }
 .quiz__text { display: grid; gap: 12px; justify-items: center; text-align: center; }
@@ -309,9 +292,9 @@ b, strong { font-weight: 700; }
 .quiz__frame { position: absolute; inset: 0; z-index: 1; width: 100%; height: 100%; border: 0; background: transparent; }
 .quiz__ph { position: absolute; inset: 0; display: grid; place-items: center; transition: opacity .4s; }
 .quiz__ph svg { width: 92px; height: auto; animation: e8-breathe 1.8s ease-in-out infinite; }
-.quiz__card.is-loaded .quiz__ph { opacity: 0; }
+.is-loaded > .quiz__ph { opacity: 0; }
 .quiz__ph p { position: absolute; left: 24px; right: 24px; bottom: 28px; text-align: center; font-size: .9375rem; color: var(--ink-3); opacity: 0; transition: opacity .5s; }
-.quiz__card.is-slow .quiz__ph p { opacity: 1; }
+.is-slow > .quiz__ph p { opacity: 1; }
 .quiz__ph a { color: var(--accent-ink); font-weight: 700; text-decoration: underline; text-underline-offset: 3px; }
 @keyframes e8-breathe { 0%, 100% { transform: scale(.92); opacity: .55; } 50% { transform: scale(1); opacity: 1; } }
 @media (min-width: 768px) { .quiz__card { height: 680px; } }
@@ -346,15 +329,22 @@ b, strong { font-weight: 700; }
 .buy-card__cta:hover::before { transform: scaleX(1); }
 .buy-card__cta:hover .buy-card__arr svg { transform: translateX(3px); }
 .buy-card__cta:active { scale: .99; }
-.buy-card--mortgage { min-height: 320px; }
+.buy-card--mortgage { min-height: 300px; }
 .buy-card--mortgage .buy-card__body { position: relative; z-index: 1; padding-right: 46%; }
-.buy-card__media { position: absolute; top: 14px; right: 14px; bottom: 86px; width: calc(44% - 14px); border-radius: var(--r-md); overflow: hidden; }
+.buy-card--mortgage .buy-card__cta { display: none; }
+.buy-card__media { position: absolute; top: 14px; right: 14px; bottom: 14px; width: calc(44% - 14px); border-radius: var(--r-md); overflow: hidden; }
+.buy__cta { position: relative; z-index: 1; width: 100%; margin: 12px 0 0; min-height: 60px; color: var(--navy); background: #fff; box-shadow: 0 18px 40px -20px rgb(0 0 0 / .6); }
+.buy__cta::before { background: var(--grad); }
+.buy__cta:hover { color: #fff; }
+.buy__cta:hover .buy-card__arr { background: rgb(255 255 255 / .2); }
 .buy-card__media img { width: 100%; height: 100%; object-fit: cover; object-position: 50% 0; transition: scale 1.2s var(--ease); }
 .buy-card--mortgage:hover .buy-card__media img { scale: 1.05; }
 @media (min-width: 768px) {
   .buy__grid { grid-template-columns: repeat(2, 1fr); gap: 14px; margin-top: 40px; }
   .buy-card--mortgage { grid-row: span 2; min-height: 520px; }
   .buy-card--mortgage .buy-card__body { padding-right: 28px; }
+  .buy-card--mortgage .buy-card__cta { display: flex; }
+  .buy__cta { display: none; }
   .buy-card__media { position: relative; inset: auto; width: auto; height: 280px; flex: none; margin: 0 14px 14px; }
   .buy-card--plan, .buy-card--trade { grid-column: 2; }
   .buy-card--capital { grid-column: 1 / -1; }
@@ -375,13 +365,16 @@ b, strong { font-weight: 700; }
   .buy-card__body { padding: clamp(26px, 3.6vh, 40px) 36px clamp(16px, 2.4vh, 26px); }
   .buy-card--plan .buy-card__body { grid-template-columns: 1fr 1fr; column-gap: 40px; }
   .buy-card--plan .buy-card__title { grid-column: 1 / -1; }
+  /* карточки без кнопки: заголовок сверху, описание прижато к низу */
+  .buy-card:not(.buy-card--mortgage) .buy-card__body { align-content: space-between; padding-bottom: clamp(26px, 3.6vh, 40px); }
 }
 
 /* ---------- 4. О проекте ---------- */
 .about { position: relative; background: var(--bg); }
 .about__card {
-  position: relative; z-index: 2; padding: 40px var(--gutter) 56px; background: var(--grad); color: #fff;
-  clip-path: polygon(0 0, 100% 0, 100% 100%, calc(var(--cut) * .9) 100%, 0 calc(100% - var(--cut) * .52));
+  --c: 80px;   /* скос 30° в левом нижнем углу; отступ снизу = высота скоса + воздух, текст не прижимается к краю */
+  position: relative; z-index: 2; padding: 40px var(--gutter) 64px; background: var(--grad); color: #fff;
+  clip-path: polygon(0 0, 100% 0, 100% 100%, calc(var(--c) * .9) 100%, 0 calc(100% - var(--c) * .52));
 }
 .about__title { font-size: clamp(1.75rem, 1.3rem + 2.1vw, 2.9rem); line-height: 1.06; font-weight: 800; letter-spacing: -.035em; text-wrap: balance; }
 .about__text { margin-top: 18px; font-size: clamp(1.02rem, .95rem + .35vw, 1.22rem); line-height: 1.5; color: rgb(255 255 255 / .95); max-width: 44ch; }
@@ -390,12 +383,12 @@ b, strong { font-weight: 700; }
 .about__img { object-fit: cover; transform-origin: 50% 40%; }
 @media (min-width: 768px) {
   .about__frame { aspect-ratio: 16 / 10; }
-  .about__card { padding: 48px 48px 72px; }
+  .about__card { --c: 120px; padding: 48px 48px 80px; }
 }
 @media (min-width: 1024px) {
   .about { padding-block: var(--sec); }
   .about__frame { aspect-ratio: auto; height: calc(100svh - 2 * var(--sec)); min-height: 560px; max-height: 960px; width: min(100% - 2 * var(--gutter), var(--maxw)); margin-inline: auto; border-radius: var(--r-xl); }
-  .about__card { position: absolute; top: calc(var(--sec) + 40px); right: max(calc(var(--gutter) + 40px), calc((100% - var(--maxw)) / 2 + 40px)); width: min(540px, 44%); padding: 52px 52px 76px; }
+  .about__card { position: absolute; top: calc(var(--sec) + 40px); right: max(calc(var(--gutter) + 40px), calc((100% - var(--maxw)) / 2 + 40px)); width: min(560px, 44%); --c: 140px; padding: 56px 56px 88px; }
 }
 
 /* ---------- 5. Инфраструктура ---------- */
@@ -775,6 +768,41 @@ b, strong { font-weight: 700; }
   .ftr__top .btn { justify-self: end; }
   .ftr__mid { grid-template-columns: 1fr auto 1fr; align-items: center; }
   .ftr__mid > :last-child { justify-self: end; }
+}
+
+/* ---------- Поп-ап квиза Марквиз (кнопки в планировках и отзывах) ----------
+   десктоп: карточка по центру поверх затемнения; телефон: лист снизу почти на весь экран.
+   Без backdrop-filter — размытие ломает отрисовку iframe квиза в Chrome */
+.qm { position: fixed; inset: 0; z-index: var(--z-modal); width: 100%; height: 100%; max-width: none; max-height: none; margin: 0; padding: 0; border: 0; background: transparent; color: var(--ink); overflow: hidden; overscroll-behavior: contain; }
+.qm::backdrop { background: transparent; }
+.qm[open] { display: grid; place-items: center; padding: clamp(16px, 3vh, 32px) var(--gutter); }
+.qm__backdrop { position: absolute; inset: 0; background: rgb(0 28 56 / .64); animation: qm-fade .4s var(--ease) both; }
+.qm__card { --qm-bg: #002B60;   /* цвет фона квиза Марквиз — плашка и окно сливаются с ним */
+  position: relative; display: flex; flex-direction: column; width: min(100%, 1040px); height: min(100%, 800px); border-radius: var(--r-xl); background: var(--qm-bg); color: #fff; box-shadow: 0 40px 90px -30px rgb(0 20 40 / .6); overflow: hidden; animation: qm-in .7s var(--spring) both; }
+.qm__bar { flex: none; display: flex; align-items: center; justify-content: space-between; gap: 12px; height: 64px; padding: 0 10px 0 24px; border-bottom: 1px solid rgb(255 255 255 / .12); }
+.qm__title { display: flex; align-items: center; gap: 12px; font-weight: 700; font-size: 1.0625rem; letter-spacing: -.01em; }
+.qm__title svg { width: 34px; height: auto; flex: none; }
+.qm__close { display: grid; place-items: center; width: 44px; height: 44px; border-radius: 50%; color: #fff; background: rgb(255 255 255 / .12); transition: background-color .3s var(--ease), color .3s var(--ease), scale .2s var(--ease); -webkit-tap-highlight-color: transparent; }
+.qm__close svg { width: 20px; height: 20px; fill: currentColor; transition: transform .45s var(--ease); }
+.qm__close:hover { background: #fff; color: var(--qm-bg); }
+.qm__close:hover svg { transform: rotate(90deg); }
+.qm__close:active { scale: .92; }
+.qm__body { position: relative; flex: 1 1 auto; min-height: 0; }
+.qm__body .quiz__ph p { color: rgb(255 255 255 / .75); }
+.qm__body .quiz__ph a { color: #fff; }
+.qm.is-closing .qm__backdrop { animation: qm-fade-out .32s var(--ease) both; }
+.qm.is-closing .qm__card { animation: qm-out .32s var(--ease) both; }
+@keyframes qm-fade { from { opacity: 0; } }
+@keyframes qm-fade-out { to { opacity: 0; } }
+@keyframes qm-in { from { opacity: 0; transform: translate3d(0, 48px, 0) scale(.96); } }
+@keyframes qm-out { to { opacity: 0; transform: translate3d(0, 28px, 0) scale(.98); } }
+@media (max-width: 767px) {
+  .qm[open] { place-items: end stretch; padding: 12px 0 0; }
+  .qm__card { width: 100%; height: 100%; border-radius: 24px 24px 0 0; animation: qm-up .55s var(--ease) both; }   /* без пружины: лист не должен отрываться от низа */
+  .qm.is-closing .qm__card { animation: qm-down .32s var(--ease) both; }
+  .qm__bar { height: 56px; padding-left: 18px; }
+  @keyframes qm-up { from { transform: translate3d(0, 100%, 0); } }
+  @keyframes qm-down { to { transform: translate3d(0, 100%, 0); } }
 }
 
 /* ---------- Тост ---------- */

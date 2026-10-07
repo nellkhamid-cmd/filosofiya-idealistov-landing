@@ -19,7 +19,7 @@
   <link rel="preload" href="assets/fonts/Manrope-latin.woff2" as="font" type="font/woff2" crossorigin>
   <link rel="preload" as="image" type="image/avif" href="assets/img/hero-m-1000.avif" imagesrcset="assets/img/hero-m-640.avif 640w, assets/img/hero-m-1000.avif 1000w, assets/img/hero-m-1400.avif 1400w" imagesizes="100vw" media="(max-width: 1023px)">
   <link rel="preload" as="image" type="image/avif" href="assets/img/hero-1920.avif" imagesrcset="assets/img/hero-1280.avif 1280w, assets/img/hero-1920.avif 1920w, assets/img/hero-2560.avif 2560w" imagesizes="100vw" media="(min-width: 1024px)">
-  <link rel="stylesheet" href="assets/css/style.css?v=5">
+  <link rel="stylesheet" href="assets/css/style.css?v=6">
   <script>document.documentElement.classList.add('js');</script>
 </head>
 <body>
@@ -70,35 +70,8 @@
     <button class="btn btn--grad btn--sm hdr__cta" type="button" data-quiz data-goal="hdr_pick">
       <span class="btn__txt">Подобрать квартиру</span>
     </button>
-    <button class="burger" type="button" aria-label="Открыть меню" aria-expanded="false" aria-controls="menu">
-      <span></span><span></span>
-    </button>
   </div>
 </header>
-
-<!-- Полноэкранное меню (выезжает снизу, как на LUCE) -->
-<nav class="menu" id="menu" aria-label="Разделы сайта" inert>
-  <div class="menu__in container">
-    <ul class="menu__list">
-      <li><a href="#quiz" data-scroll>Подбор квартиры</a></li>
-      <li><a href="#buy" data-scroll>Способы покупки</a></li>
-      <li><a href="#about" data-scroll>О проекте</a></li>
-      <li><a href="#infra" data-scroll>Инфраструктура и территория</a></li>
-      <li><a href="#location" data-scroll>Локация</a></li>
-      <li><a href="#advantages" data-scroll>Преимущества</a></li>
-      <li><a href="#plans" data-scroll>Планировочные решения</a></li>
-      <li><a href="#finish" data-scroll>Предчистовая отделка</a></li>
-      <li><a href="#developer" data-scroll>О застройщике</a></li>
-      <li><a href="#reviews" data-scroll>Отзывы</a></li>
-    </ul>
-    <div class="menu__foot">
-      <p class="menu__addr"><span>Офис продаж:</span> г. Екатеринбург, ул. Красноармейская, д. 41,</p>
-      <button class="btn btn--grad" type="button" data-quiz data-goal="menu_consult">
-        <span class="btn__txt">Получить консультацию</span><svg class="btn__ico"><use href="#i-arrow"/></svg>
-      </button>
-    </div>
-  </div>
-</nav>
 
 <main id="main">
 
@@ -184,9 +157,6 @@
               <p>Это удобный способ приобретения недвижимости и выгодная альтернатива ипотеке.</p>
               <p>Вы можете приобрести квартиру с первоначальным взносом от&nbsp;20% и комфортным ежемесячным платежом.</p>
             </div>
-            <button class="buy-card__cta" type="button" data-quiz data-goal="buy_installment">
-              <span>Получить предложение</span><i class="buy-card__arr"><svg><use href="#i-arrow"/></svg></i>
-            </button>
           </article>
 
           <article class="buy-card buy-card--trade" data-reveal>
@@ -194,9 +164,6 @@
               <h3 class="buy-card__title">Трейд-ин</h3>
               <p>Удобный способ покупки с помощью продажи вторичного жилья или автомобиля.</p>
             </div>
-            <button class="buy-card__cta" type="button" data-quiz data-goal="buy_tradein">
-              <span>Получить предложение</span><i class="buy-card__arr"><svg><use href="#i-arrow"/></svg></i>
-            </button>
           </article>
 
           <article class="buy-card buy-card--capital" data-reveal>
@@ -204,11 +171,12 @@
               <h3 class="buy-card__title">Материнский капитал</h3>
               <p>Принимаем материнский (семейный) капитал в качестве оплаты части стоимости квартиры как при оплате наличными, так и в случае с ипотекой.</p>
             </div>
-            <button class="buy-card__cta" type="button" data-quiz data-goal="buy_capital">
-              <span>Получить предложение</span><i class="buy-card__arr"><svg><use href="#i-arrow"/></svg></i>
-            </button>
           </article>
         </div>
+        <!-- на телефоне вместо кнопок в карточках — одна кнопка в конце блока -->
+        <button class="buy-card__cta buy__cta" type="button" data-quiz data-goal="buy_offer">
+          <span>Получить предложение</span><i class="buy-card__arr"><svg><use href="#i-arrow"/></svg></i>
+        </button>
       </div>
     </section>
   </div>
@@ -448,7 +416,7 @@
                   <div><dt>Площадь</dt><dd>28–30 м²</dd></div>
                 </dl>
               </div>
-              <button class="buy-card__cta plan-card__cta" type="button" data-quiz data-goal="plan_studio">
+              <button class="buy-card__cta plan-card__cta" type="button" data-quiz="popup" data-goal="plan_studio">
                 <span>Оставить заявку на подбор</span><i class="buy-card__arr"><svg><use href="#i-arrow"/></svg></i>
               </button>
             </div>
@@ -463,7 +431,7 @@
                   <div><dt>Платеж в месяц от</dt><dd>24&nbsp;321&nbsp;₽/мес</dd></div>
                 </dl>
               </div>
-              <button class="buy-card__cta plan-card__cta" type="button" data-quiz data-goal="plan_1k">
+              <button class="buy-card__cta plan-card__cta" type="button" data-quiz="popup" data-goal="plan_1k">
                 <span>Оставить заявку на подбор</span><i class="buy-card__arr"><svg><use href="#i-arrow"/></svg></i>
               </button>
             </div>
@@ -477,7 +445,7 @@
                   <div><dt>Площадь</dt><dd>53–68 м²</dd></div>
                 </dl>
               </div>
-              <button class="buy-card__cta plan-card__cta" type="button" data-quiz data-goal="plan_2k">
+              <button class="buy-card__cta plan-card__cta" type="button" data-quiz="popup" data-goal="plan_2k">
                 <span>Оставить заявку на подбор</span><i class="buy-card__arr"><svg><use href="#i-arrow"/></svg></i>
               </button>
             </div>
@@ -491,7 +459,7 @@
                   <div><dt>Площадь</dt><dd>75 м²</dd></div>
                 </dl>
               </div>
-              <button class="buy-card__cta plan-card__cta" type="button" data-quiz data-goal="plan_3k">
+              <button class="buy-card__cta plan-card__cta" type="button" data-quiz="popup" data-goal="plan_3k">
                 <span>Оставить заявку на подбор</span><i class="buy-card__arr"><svg><use href="#i-arrow"/></svg></i>
               </button>
             </div>
@@ -505,7 +473,7 @@
                   <div><dt>Площадь</dt><dd>36–80 м²</dd></div>
                 </dl>
               </div>
-              <button class="buy-card__cta plan-card__cta" type="button" data-quiz data-goal="plan_duplex">
+              <button class="buy-card__cta plan-card__cta" type="button" data-quiz="popup" data-goal="plan_duplex">
                 <span>Оставить заявку на подбор</span><i class="buy-card__arr"><svg><use href="#i-arrow"/></svg></i>
               </button>
             </div>
@@ -601,7 +569,7 @@
       <li class="rev rev--cta">
         <p class="rev__cta-title">Еще сотни отзывов на&nbsp;Я.Картах</p>
         <p class="rev__cta-sub">Подберите свою квартиру в&nbsp;Философии идеалистов на&nbsp;лучших условиях</p>
-        <button class="btn btn--white" type="button" data-quiz data-goal="reviews_pick">
+        <button class="btn btn--white" type="button" data-quiz="popup" data-goal="reviews_pick">
           <span class="btn__txt">Подобрать квартиру</span><svg class="btn__ico"><use href="#i-arrow"/></svg>
         </button>
       </li>
@@ -692,6 +660,21 @@
 
 
 
+<!-- Квиз Марквиз во всплывающем окне: кнопки с data-quiz="popup" (планировки, отзывы) -->
+<dialog class="qm" id="quiz-modal" aria-label="Квиз: подбор квартиры">
+  <div class="qm__backdrop" data-qm-close></div>
+  <div class="qm__card">
+    <div class="qm__bar">
+      <p class="qm__title"><svg viewBox="0 0 104.6 59.72" aria-hidden="true"><use href="#eight"/></svg>Подбор квартиры</p>
+      <button class="qm__close" type="button" data-qm-close aria-label="Закрыть"><svg><use href="#i-x"/></svg></button>
+    </div>
+    <div class="qm__body">
+      <iframe class="quiz__frame" title="Квиз: подбор квартиры" data-src="https://mrqz.me/6aba259bf4b390000f8007ae" allow="clipboard-write" referrerpolicy="strict-origin-when-cross-origin"></iframe>
+      <div class="quiz__ph"><svg viewBox="0 0 104.6 59.72" aria-hidden="true"><use href="#eight"/></svg><p>Квиз загружается. Если он не появился, <a href="https://mrqz.me/6aba259bf4b390000f8007ae" target="_blank" rel="noopener">откройте его в новом окне</a></p></div>
+    </div>
+  </div>
+</dialog>
+
 <!-- Тост после отправки -->
 <div class="toast" role="status" aria-live="polite">
   <span class="toast__icon" aria-hidden="true"><svg><use href="#i-check"/></svg></span>
@@ -706,6 +689,6 @@
 </script>
 <script src="assets/js/vendor/gsap.min.js" defer></script>
 <script src="assets/js/vendor/ScrollTrigger.min.js" defer></script>
-<script src="assets/js/main.js?v=5" defer></script>
+<script src="assets/js/main.js?v=6" defer></script>
 </body>
 </html>

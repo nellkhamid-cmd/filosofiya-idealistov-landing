@@ -74,7 +74,6 @@
     const href = a.getAttribute('href');
     if (!href || href[0] !== '#') return;
     e.preventDefault();
-    if (html.classList.contains('open-menu')) toggleMenu(false);
     scrollTo(href);
   });
   $$('[data-policy]').forEach((a) => a.addEventListener('click', (e) => { if (a.getAttribute('href') === '#') e.preventDefault(); }));
@@ -87,35 +86,22 @@
   function onScrollHeader(y) {
     hdr.classList.toggle('is-compact', y > 40);
     const goingDown = y > lastY + 2, goingUp = y < lastY - 2;
-    if (y > window.innerHeight * 0.9 && goingDown && !html.classList.contains('open-menu')) hdr.classList.add('is-hidden');
+    if (y > window.innerHeight * 0.9 && goingDown) hdr.classList.add('is-hidden');
     else if (goingUp || y < window.innerHeight * 0.9) hdr.classList.remove('is-hidden');
     lastY = y;
   }
   if (HAS_GSAP) ScrollTrigger.create({ start: 0, end: 'max', onUpdate: (self) => onScrollHeader(self.scroll()) });
   else new IntersectionObserver(([en]) => hdr.classList.toggle('is-compact', !en.isIntersecting), { rootMargin: '-60px 0px 0px 0px' }).observe($('.hero__in'));
 
-  /* Меню (выезжает снизу) */
-  const menu = $('#menu');
-  const burger = $('.burger');
-  $$('.menu__list li').forEach((li, i) => li.style.setProperty('--i', i));
-  function toggleMenu(open) {
-    const on = open === undefined ? !html.classList.contains('open-menu') : open;
-    html.classList.toggle('open-menu', on);
-    burger.setAttribute('aria-expanded', String(on));
-    burger.setAttribute('aria-label', on ? 'Закрыть меню' : 'Открыть меню');
-    menu.inert = !on;
-    lockScroll(on);
-    if (on) hdr.classList.remove('is-hidden');
-  }
-  burger.addEventListener('click', () => toggleMenu());
-
   /* ---------------------------------------------------------------
-     3. Первый экран: «прилипает», следующий блок наезжает шторкой.
-        Если экран выше окна (маленький телефон) — прилипает после того,
-        как показан целиком.
+     3. Первый экран на десктопе «прилипает», следующий блок наезжает шторкой.
+        Если экран выше окна — прилипает после того, как показан целиком.
+        На телефоне и планшете экран прокручивается обычным образом (без sticky):
+        панель браузера при прокрутке меняет высоту окна, и «шторка» дёргалась бы.
      --------------------------------------------------------------- */
   const hero = $('.hero');
-  function heroTop() { hero.style.top = Math.min(0, window.innerHeight - hero.offsetHeight) + 'px'; }
+  const deskMQ = matchMedia(DESK);
+  function heroTop() { hero.style.top = deskMQ.matches ? Math.min(0, window.innerHeight - hero.offsetHeight) + 'px' : ''; }
   heroTop();
   window.addEventListener('resize', heroTop);
 
@@ -128,15 +114,19 @@
   function initScrollMotion() {
     if (!MOTION) return;
 
-    /* 5.1 Первый экран уходит под шторку: текст уезжает вверх, фото наезжает и темнеет */
-    const dim = d.createElement('span');
-    dim.className = 'hero__dim';
-    dim.style.cssText = 'position:absolute;inset:0;background:#081616;opacity:0;pointer-events:none';
-    $('.hero__media').appendChild(dim);
-    const out = { trigger: '.quiz', start: 'top bottom', end: 'top top', scrub: true };
-    gsap.to('.hero__in', { yPercent: -18, opacity: 0, ease: 'none', scrollTrigger: { trigger: '.quiz', start: 'top bottom', end: 'top 35%', scrub: true } });
-    gsap.to('.hero__media picture', { scale: 1.12, yPercent: 6, ease: 'none', scrollTrigger: out });
-    gsap.to(dim, { opacity: 0.55, ease: 'none', scrollTrigger: out });
+    /* 5.1 Десктоп: первый экран уходит под шторку — текст уезжает вверх, фото наезжает и темнеет.
+           На телефоне экран просто уезжает вверх целиком, без исчезающего текста */
+    mm.add(DESK, () => {
+      const dim = d.createElement('span');
+      dim.className = 'hero__dim';
+      dim.style.cssText = 'position:absolute;inset:0;background:#081616;opacity:0;pointer-events:none';
+      $('.hero__media').appendChild(dim);
+      const out = { trigger: '.quiz', start: 'top bottom', end: 'top top', scrub: true };
+      gsap.to('.hero__in', { yPercent: -18, opacity: 0, ease: 'none', scrollTrigger: { trigger: '.quiz', start: 'top bottom', end: 'top 35%', scrub: true } });
+      gsap.to('.hero__media picture', { scale: 1.12, yPercent: 6, ease: 'none', scrollTrigger: out });
+      gsap.to(dim, { opacity: 0.55, ease: 'none', scrollTrigger: out });
+      return () => dim.remove();
+    });
 
     /* 5.2 Заголовки секций: строки выезжают из-под маски */
     gsap.set('[data-split]', { autoAlpha: 0 });
@@ -586,16 +576,49 @@
   /* ---------------------------------------------------------------
      12. Квиз Марквиз — блок сразу после первого экрана.
          iframe подгружается, когда блок подходит к экрану (или по нажатию любой кнопки-призыва).
-         Кнопки с data-quiz плавно ведут к квизу; если подключён скрипт Марквиза и задан
-         FI_CONFIG.marquizId — открывают его всплывающим окном.
+         Кнопки с data-quiz плавно ведут к квизу, с data-quiz="popup" (планировки, отзывы) —
+         открывают квиз поверх страницы. Если подключён скрипт Марквиза и задан
+         FI_CONFIG.marquizId — все кнопки открывают его собственное всплывающее окно.
      --------------------------------------------------------------- */
   const quizCard = $('.quiz__card');
-  const quizFrame = $('.quiz__frame');
-  function loadQuiz() {
-    if (!quizFrame || quizFrame.src) return;
-    quizFrame.addEventListener('load', () => quizCard.classList.add('is-loaded'), { once: true });
-    quizFrame.src = quizFrame.dataset.src;
-    setTimeout(() => { if (!quizCard.classList.contains('is-loaded')) quizCard.classList.add('is-slow'); }, 7000);
+  const quizFrame = quizCard && $('.quiz__frame', quizCard);
+  function loadFrame(frame, box) {
+    if (!frame || frame.src) return;
+    frame.addEventListener('load', () => box.classList.add('is-loaded'), { once: true });
+    frame.src = frame.dataset.src;
+    setTimeout(() => { if (!box.classList.contains('is-loaded')) box.classList.add('is-slow'); }, 7000);
+  }
+  function loadQuiz() { loadFrame(quizFrame, quizCard); }
+
+  /* поп-ап: <dialog> (фокус внутри окна, фон недоступен), анимация открытия и закрытия — на CSS */
+  const qm = $('#quiz-modal');
+  const qmBody = qm && $('.qm__body', qm);
+  let qmClosing = false;
+  function openQuizModal() {
+    if (!qm || qm.open) return;
+    loadFrame($('.quiz__frame', qmBody), qmBody);
+    qmClosing = false;
+    qm.classList.remove('is-closing');
+    lockScroll(true);
+    if (typeof qm.showModal === 'function') qm.showModal(); else qm.setAttribute('open', '');
+  }
+  function closeQuizModal() {
+    if (!qm || !qm.open || qmClosing) return;
+    qmClosing = true;
+    qm.classList.add('is-closing');
+    const done = () => {
+      if (!qmClosing) return;
+      qmClosing = false;
+      qm.classList.remove('is-closing');
+      if (typeof qm.close === 'function') qm.close(); else qm.removeAttribute('open');
+      lockScroll(false);
+    };
+    if (REDUCED) done();
+    else { $('.qm__card', qm).addEventListener('animationend', done, { once: true }); setTimeout(done, 450); }
+  }
+  if (qm) {
+    qm.addEventListener('click', (e) => { if (e.target.closest('[data-qm-close]')) closeQuizModal(); });
+    qm.addEventListener('cancel', (e) => { e.preventDefault(); closeQuizModal(); });   /* Esc — тоже с анимацией */
   }
   function initQuiz() {
     if (!quizCard) return;
@@ -608,13 +631,10 @@
     const b = e.target.closest('[data-quiz]');
     if (!b) return;
     e.preventDefault();
-    if (html.classList.contains('open-menu')) toggleMenu(false);
     if (CFG.marquizId && window.Marquiz && typeof window.Marquiz.showModal === 'function') { window.Marquiz.showModal(CFG.marquizId); return; }
+    if (b.dataset.quiz === 'popup') { openQuizModal(); return; }
     loadQuiz();
     scrollTo('#quiz');
-  });
-  d.addEventListener('keydown', (e) => {
-    if (e.key === 'Escape' && html.classList.contains('open-menu')) toggleMenu(false);
   });
 
   /* ---------------------------------------------------------------
