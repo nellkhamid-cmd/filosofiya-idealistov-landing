@@ -121,8 +121,8 @@
       dim.className = 'hero__dim';
       dim.style.cssText = 'position:absolute;inset:0;background:#081616;opacity:0;pointer-events:none';
       $('.hero__media').appendChild(dim);
-      const out = { trigger: '.quiz', start: 'top bottom', end: 'top top', scrub: true };
-      gsap.to('.hero__in', { yPercent: -18, opacity: 0, ease: 'none', scrollTrigger: { trigger: '.quiz', start: 'top bottom', end: 'top 35%', scrub: true } });
+      const out = { trigger: '.perks', start: 'top bottom', end: 'top top', scrub: true };
+      gsap.to('.hero__in', { yPercent: -18, opacity: 0, ease: 'none', scrollTrigger: { trigger: '.perks', start: 'top bottom', end: 'top 35%', scrub: true } });
       gsap.to('.hero__media picture', { scale: 1.12, yPercent: 6, ease: 'none', scrollTrigger: out });
       gsap.to(dim, { opacity: 0.55, ease: 'none', scrollTrigger: out });
       return () => dim.remove();
